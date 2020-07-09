@@ -1,0 +1,47 @@
+kind: pipeline
+name: docker
+steps:
+  - name: build docker image
+    image: "monacoremo/nix:2020-04-05-05f09348-circleci"
+    environment:
+      USER: root
+    commands:
+      - nix-build
+      - cp $(readlink result) /result/docker.tgz
+    volumes:
+      - name: image
+        path: /result
+
+  - name: push docker image
+    image: docker:dind
+    volumes:
+      - name: image
+        path: /result
+      - name: dockersock
+        path: /var/run/docker.sock
+    commands:
+      - docker load -i /result/docker.tgz
+      - docker tag xena/printerfacts:latest xena/printerfacts:$DRONE_COMMIT_SHA
+      - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+      - docker push xena/printerfacts:$DRONE_COMMIT_SHA
+    environment:
+      DOCKER_USERNAME: xena
+      DOCKER_PASSWORD:
+        from_secret: DOCKER_PASSWORD
+
+  - name: kubenetes release
+    image: "monacoremo/nix:2020-04-05-05f09348-circleci"
+    environment:
+      USER: root
+      DIGITALOCEAN_ACCESS_TOKEN:
+        from_secret: DIGITALOCEAN_ACCESS_TOKEN
+    commands:
+      - ./scripts/release.sh
+
+volumes:
+  - name: image
+    temp: {}
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
+
