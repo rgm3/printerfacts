@@ -9,6 +9,7 @@ async fn give_fact(facts: Facts) -> Result<String, Infallible> {
 
 #[tokio::main]
 async fn main() {
+    pretty_env_logger::init();
     let facts = pfacts::make();
 
     let mw = warp::any().map(move || facts.clone());
@@ -17,6 +18,7 @@ async fn main() {
         .and(mw)
         .and_then(give_fact);
 
+    log::info!("listening on port 5000");
     warp::serve(fact_handler)
         .run(([0, 0, 0, 0], 5000))
         .await;
