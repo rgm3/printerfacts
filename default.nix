@@ -14,6 +14,7 @@ in pkgs.dockerTools.buildLayeredImage {
 
   config = {
     Cmd = [ "${printerfacts}/bin/printerfacts" ];
+    Env = [ "RUST_LOG=info" ];
     WorkingDir = "/";
   };
 }
