@@ -1,4 +1,10 @@
 {
+    "dhall-yaml": {
+        "sha256": "0mnqn6by839v1n2ccb33qxdh7jga0x5xq3kkwdsnic6q7fgcsds6",
+        "type": "file",
+        "url": "https://github.com/dhall-lang/dhall-haskell/releases/download/1.33.1/dhall-yaml-1.2.0-x86_64-linux.tar.bz2",
+        "url_template": "https://github.com/dhall-lang/dhall-haskell/releases/download/1.33.1/dhall-yaml-1.2.0-x86_64-linux.tar.bz2"
+    },
     "easy-dhall-nix": {
         "branch": "master",
         "description": "Derivations for easily downloading Dhall binaries and putting them to use.",
