@@ -5,7 +5,7 @@ let
   pkgs = import <nixpkgs> { };
   printerfacts = import ./printerfacts.nix { inherit pkgs sources; };
 
-  name = "xena/printerfacts-warp";
+  name = "xena/printerfacts";
   tag = "latest";
 
 in pkgs.dockerTools.buildLayeredImage {

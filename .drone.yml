@@ -6,6 +6,7 @@ steps:
     environment:
       USER: root
     commands:
+      - cachix use xe
       - nix-build
       - cp $(readlink result) /result/docker.tgz
     volumes:
