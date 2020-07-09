@@ -37,7 +37,9 @@ steps:
       DIGITALOCEAN_ACCESS_TOKEN:
         from_secret: DIGITALOCEAN_ACCESS_TOKEN
     commands:
-      - ./scripts/release.sh
+      -  nix-env -i -f ./nix/dhall.nix
+      - cd scripts
+      - ./release.sh
 
 volumes:
   - name: image
