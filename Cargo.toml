@@ -1,18 +1,24 @@
 [package]
 name = "printerfacts"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Christine Dodrill <me@christine.website>"]
 edition = "2018"
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 anyhow = "1"
-handlebars = "3.2.1"
+lazy_static = "1.4"
 log = "0"
+mime = "0.3.0"
 pfacts = "0.1.0"
 pretty_env_logger = "0"
+prometheus = { version = "0.9", default-features = false, features = ["process"] }
 rand = "0"
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "0.2", features = ["macros"] }
 warp = "0.2"
+
+[build-dependencies]
+ructe = { version = "0.11", features = ["warp02"] }

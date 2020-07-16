@@ -1,0 +1,13 @@
+@use super::{header_html, footer_html};
+
+@(fact: String)
+
+@:header_html("Printer Facts")
+
+<p>
+    <blockquote>
+        @fact
+    </blockquote>
+</p>
+
+@:footer_html()
