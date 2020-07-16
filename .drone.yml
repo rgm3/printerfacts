@@ -40,6 +40,20 @@ steps:
       - nix-env -i -f ./nix/dhall.nix
       - ./scripts/release.sh
 
+  - name: auto-release
+    image: xena/gitea-release
+    pull: always
+    settings:
+      auth_username: cadey
+      gitea_server: https://tulpa.dev
+      gitea_token:
+        from_secret: GITEA_TOKEN
+    when:
+      event:
+        - push
+      branch:
+        - main
+
 volumes:
   - name: image
     temp: {}
