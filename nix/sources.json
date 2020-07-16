@@ -11,10 +11,10 @@
         "homepage": "",
         "owner": "justinwoo",
         "repo": "easy-dhall-nix",
-        "rev": "27edaa0c769b9c876f11c50c9ab542061d07def5",
-        "sha256": "0w2ckl8fifnaq12ycqqa9ldqjsys3jbblbg7f1vkqa272y89zl08",
+        "rev": "7c22a145fcb8e00b61d29efc7543af0c80d709ed",
+        "sha256": "03qry1wbhyb8i2qz7gcb04hw5d75a4vx2d4xjb6iradj1pc199xg",
         "type": "tarball",
-        "url": "https://github.com/justinwoo/easy-dhall-nix/archive/27edaa0c769b9c876f11c50c9ab542061d07def5.tar.gz",
+        "url": "https://github.com/justinwoo/easy-dhall-nix/archive/7c22a145fcb8e00b61d29efc7543af0c80d709ed.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "gruvbox-css": {
