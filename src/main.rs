@@ -57,8 +57,12 @@ async fn main() -> anyhow::Result<()> {
         .and_then(index);
 
     let not_found_handler = warp::any().and_then(not_found);
+    let port = std::env::var("PORT")
+        .unwrap_or("5000".into())
+        .parse::<u16>()
+        .expect("PORT to be a string-encoded u16");
 
-    log::info!("listening on port 5000");
+    log::info!("listening on port {}", port);
     warp::serve(
         fact_handler
             .or(index_handler)
@@ -66,7 +70,7 @@ async fn main() -> anyhow::Result<()> {
             .or(not_found_handler)
             .with(warp::log(APPLICATION_NAME)),
     )
-    .run(([0, 0, 0, 0], 5000))
+    .run(([0, 0, 0, 0], port))
     .await;
     Ok(())
 }
