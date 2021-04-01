@@ -3,7 +3,9 @@ use lazy_static::lazy_static;
 use pfacts::Facts;
 use prometheus::{opts, register_int_counter_vec, IntCounterVec};
 use rand::prelude::*;
-use std::convert::Infallible;
+use std::{convert::Infallible, str::FromStr};
+use tokio::net::UnixListener;
+use tokio_stream::wrappers::UnixListenerStream;
 use warp::{http::Response, Filter, Rejection, Reply};
 
 include!(concat!(env!("OUT_DIR"), "/templates.rs"));
@@ -36,7 +38,7 @@ async fn not_found() -> Result<impl Reply, Rejection> {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    pretty_env_logger::init();
+    tracing_subscriber::fmt::init();
     let facts = pfacts::make();
 
     let fact = {
@@ -57,20 +59,32 @@ async fn main() -> anyhow::Result<()> {
         .and_then(index);
 
     let not_found_handler = warp::any().and_then(not_found);
-    let port = std::env::var("PORT")
-        .unwrap_or("5000".into())
-        .parse::<u16>()
-        .expect("PORT to be a string-encoded u16");
 
-    log::info!("listening on port {}", port);
-    warp::serve(
+    let server = warp::serve(
         fact_handler
             .or(index_handler)
             .or(files)
             .or(not_found_handler)
             .with(warp::log(APPLICATION_NAME)),
-    )
-    .run(([0, 0, 0, 0], port))
-    .await;
-    Ok(())
+    );
+
+    if let Ok(sockpath) = std::env::var("SOCKPATH") {
+        let _ = std::fs::remove_file(&sockpath);
+        let listener = UnixListener::bind(sockpath).unwrap();
+        let incoming = UnixListenerStream::new(listener);
+        server.run_incoming(incoming).await;
+
+        Ok(())
+    } else {
+        let port = std::env::var("PORT")
+            .unwrap_or("5000".into())
+            .parse::<u16>()
+            .expect("PORT to be a string-encoded u16");
+        tracing::info!("listening on port {}", port);
+        server
+            .run((std::net::IpAddr::from_str("::").unwrap(), port))
+            .await;
+
+        Ok(())
+    }
 }
