@@ -1,21 +1,24 @@
 use crate::templates::RenderRucte;
+use hyper::{header::CONTENT_TYPE, Body, Response};
 use lazy_static::lazy_static;
 use pfacts::Facts;
-use prometheus::{opts, register_int_counter_vec, IntCounterVec};
+use prometheus::{opts, register_int_counter_vec, Encoder, IntCounterVec, TextEncoder};
 use rand::prelude::*;
 use std::{convert::Infallible, str::FromStr};
 use tokio::net::UnixListener;
 use tokio_stream::wrappers::UnixListenerStream;
-use warp::{http::Response, Filter, Rejection, Reply};
+use warp::{Filter, Rejection, Reply};
 
 include!(concat!(env!("OUT_DIR"), "/templates.rs"));
 
 const APPLICATION_NAME: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
 
 lazy_static! {
-    static ref HIT_COUNTER: IntCounterVec =
-        register_int_counter_vec!(opts!("hits", "Number of hits to various pages"), &["page"])
-            .unwrap();
+    static ref HIT_COUNTER: IntCounterVec = register_int_counter_vec!(
+        opts!("printerfacts_hits", "Number of hits to various pages"),
+        &["page"]
+    )
+    .unwrap();
 }
 
 async fn give_fact(facts: Facts) -> Result<String, Infallible> {
@@ -60,10 +63,23 @@ async fn main() -> anyhow::Result<()> {
 
     let not_found_handler = warp::any().and_then(not_found);
 
+    let metrics_endpoint = warp::path("metrics").and(warp::path::end()).map(move || {
+        let encoder = TextEncoder::new();
+        let metric_families = prometheus::gather();
+        let mut buffer = vec![];
+        encoder.encode(&metric_families, &mut buffer).unwrap();
+        Response::builder()
+            .status(200)
+            .header(CONTENT_TYPE, encoder.format_type())
+            .body(Body::from(buffer))
+            .unwrap()
+    });
+
     let server = warp::serve(
         fact_handler
             .or(index_handler)
             .or(files)
+            .or(metrics_endpoint)
             .or(not_found_handler)
             .with(warp::log(APPLICATION_NAME)),
     );
