@@ -4,6 +4,7 @@ version = "0.3.0"
 authors = ["Christine Dodrill <me@christine.website>"]
 edition = "2018"
 build = "build.rs"
+description = "Printer facts: The API"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
