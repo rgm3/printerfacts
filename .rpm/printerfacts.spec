@@ -25,31 +25,31 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 #Upgrading
 if [ $1 -eq 2 ]; then
-    /usr/bin/systemctl stop %{pkgname}.service >/dev/null 2>&1 ||:
+    /usr/bin/systemctl stop %{name}.service >/dev/null 2>&1 ||:
 fi
 
 %post
 if [ $1 -eq 1 ]; then        
     /usr/bin/systemctl daemon-reload
-    /usr/bin/systemctl start %{pkgname}.service
+    /usr/bin/systemctl start %{name}.service
 fi
 if [ $1 -eq 2 ]; then
     /usr/bin/systemctl daemon-reload
-    /usr/bin/systemctl start %{pkgname}.service    
+    /usr/bin/systemctl start %{name}.service    
 fi
 
 %preun
 #old package
 #uninstall
 if [ $1 -eq 0 ]; then
-    /usr/bin/systemctl --no-reload disable %{pkgname}.service
-    /usr/bin/systemctl stop %{pkgname}.service >/dev/null 2>&1 ||:
-    /usr/bin/systemctl disable %{pkgname}.service
+    /usr/bin/systemctl --no-reload disable %{name}.service
+    /usr/bin/systemctl stop %{name}.service >/dev/null 2>&1 ||:
+    /usr/bin/systemctl disable %{name}.service
 
 fi
 if [ $1 -eq 1 ]; then
-    /usr/bin/systemctl --no-reload disable %{pkgname}.service
-    /usr/bin/systemctl stop %{pkgname}.service
+    /usr/bin/systemctl --no-reload disable %{name}.service
+    /usr/bin/systemctl stop %{name}.service
 fi
 
 %postun
@@ -63,8 +63,8 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}
 cp -a * %{buildroot}
 mkdir -p %{buildroot}%{_unitdir}
-install -m 0644 ./%{pkgname}.service %{buildroot}%{_unitdir}
-install -m 0644 ./%{pkgname}.default %{buildroot}/etc/default/printerfacts
+install -m 0644 ./%{name}.service %{buildroot}%{_unitdir}
+install -m 0644 ./%{name}.default %{buildroot}/etc/default/printerfacts
 
 %clean
 rm -rf %{buildroot}
