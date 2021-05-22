@@ -13,6 +13,7 @@ Source1: printerfacts.service
 Source2: printerfacts.default
 Requires(pre): /usr/sbin/useradd, /usr/bin/getent
 Requires(postun): /usr/sbin/userdel
+BuildRequires: systemd
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
