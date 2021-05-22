@@ -8,7 +8,6 @@ EnvironmentFile=/etc/default/printerfacts
 ExecStart=/usr/bin/printerfacts
 Restart=on-failure
 User=printerfacts
-WorkingDirectory=/var/lib/printerfacts
 
 [Install]
 WantedBy=multi-user.target
