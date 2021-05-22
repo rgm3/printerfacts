@@ -37,5 +37,5 @@ buildflags = ["--release"]
 printerfacts = { path = "/usr/bin/printerfacts" }
 
 [package.metadata.rpm.files]
-"./.rpm/printerfacts.default" = { path = "/etc/default/printerfacts", mode = "644" }
-"./.rpm/printerfacts.service" = { path = "/lib/systemd/system/printerfacts.service" }
+"printerfacts.default" = { path = "/etc/default/printerfacts", mode = "644" }
+"printerfacts.service" = { path = "/lib/systemd/system/printerfacts.service" }
