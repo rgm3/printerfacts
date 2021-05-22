@@ -12,7 +12,6 @@ Source0: %{name}-%{version}.tar.gz
 Source1: printerfacts.service
 Requires(pre): /usr/sbin/useradd, /usr/bin/getent
 Requires(postun): /usr/sbin/userdel
-BuildRequires: systemd-rpm-macros
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
