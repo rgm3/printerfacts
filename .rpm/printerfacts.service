@@ -9,7 +9,6 @@ ExecStart=/usr/bin/printerfacts
 Restart=on-failure
 User=printerfacts
 WorkingDirectory=/var/lib/printerfacts
-Environment=RUST_LOG=info
 
 [Install]
 WantedBy=multi-user.target

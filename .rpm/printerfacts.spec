@@ -7,9 +7,10 @@ Summary: Printer facts: The API
 Version: @@VERSION@@
 Release: @@RELEASE@@%{?dist}
 License: MIT
-Group: Applications/System
+Group: Network
 Source0: %{name}-%{version}.tar.gz
 Source1: printerfacts.service
+Source2: printerfacts.default
 Requires(pre): /usr/sbin/useradd, /usr/bin/getent
 Requires(postun): /usr/sbin/userdel
 
@@ -62,7 +63,8 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}
 cp -a * %{buildroot}
 mkdir -p %{buildroot}%{_unitdir}
-install -m 0644 %{pkgname}.service %{buildroot}%{_unitdir}
+install -m 0644 ./%{pkgname}.service %{buildroot}%{_unitdir}
+install -m 0644 ./%{pkgname}.default %{buildroot}/etc/default/printerfacts
 
 %clean
 rm -rf %{buildroot}
