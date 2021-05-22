@@ -29,14 +29,14 @@ fi
 %post
 if [ $1 -eq 1 ]; then        
     /usr/bin/systemctl daemon-reload
-    /usr/bin/systemctl start %{name}.service
+    /usr/bin/systemctl enable --now %{name}.service
 fi
 if [ $1 -eq 2 ]; then
     /usr/bin/systemctl daemon-reload
-    /usr/bin/systemctl start %{name}.service    
+    /usr/bin/systemctl enable --now %{name}.service    
 fi
 
-%preun
+%preu
 #old package
 #uninstall
 if [ $1 -eq 0 ]; then
