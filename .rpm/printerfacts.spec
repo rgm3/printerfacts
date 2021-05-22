@@ -9,8 +9,6 @@ Release: @@RELEASE@@%{?dist}
 License: MIT
 Group: Network
 Source0: %{name}-%{version}.tar.gz
-Source1: printerfacts.service
-Source2: printerfacts.default
 Requires(pre): /usr/sbin/useradd, /usr/bin/getent
 Requires(postun): /usr/sbin/userdel
 BuildRequires: systemd
