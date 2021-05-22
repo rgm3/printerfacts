@@ -19,7 +19,6 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 %{summary}
 
 %pre
-/usr/bin/getent group printerfacts || /usr/sbin/groupadd -r printerfacts
 /usr/bin/getent passwd printerfacts || /usr/sbin/useradd -r -d /usr/bin/printerfacts -s /sbin/nologin printerfacts
 
 #Upgrading
