@@ -29,8 +29,6 @@ if [ $1 -eq 2 ]; then
 fi
 
 %post
-%systemd_post %{pkgname}.service
-
 if [ $1 -eq 1 ]; then        
     /usr/bin/systemctl daemon-reload
     /usr/bin/systemctl start %{pkgname}.service
@@ -41,7 +39,6 @@ if [ $1 -eq 2 ]; then
 fi
 
 %preun
-%systemd_preun %{pkgname}.service
 #old package
 #uninstall
 if [ $1 -eq 0 ]; then
@@ -65,6 +62,8 @@ fi
 rm -rf %{buildroot}
 mkdir -p %{buildroot}
 cp -a * %{buildroot}
+mkdir -p %{buildroot}%{_unitdir}
+install -m 0644 .%{_unitdir}/%{pkgname}.service %{buildroot}%{_unitdir}
 
 %clean
 rm -rf %{buildroot}
