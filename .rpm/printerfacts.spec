@@ -19,7 +19,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 %{summary}
 
 %pre
-/usr/bin/getent passwd printerfacts || /usr/sbin/useradd -r -s /sbin/nologin printerfacts
+/usr/bin/getent passwd printerfacts || /usr/sbin/useradd -r -d /var/lib/printerfacts -s /sbin/nologin printerfacts
 
 #Upgrading
 if [ $1 -eq 2 ]; then
