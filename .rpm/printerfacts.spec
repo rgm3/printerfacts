@@ -62,7 +62,7 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}
 cp -a * %{buildroot}
 mkdir -p %{buildroot}%{_unitdir}
-install -m 0644 .%{_unitdir}/%{pkgname}.service %{buildroot}%{_unitdir}
+install -m 0644 %{pkgname}.service %{buildroot}%{_unitdir}
 
 %clean
 rm -rf %{buildroot}
