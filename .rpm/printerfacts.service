@@ -1,0 +1,15 @@
+[Unit]
+Description=Printer facts API
+Wants=network-pre.target
+After=network-pre.target
+
+[Service]
+EnvironmentFile=/etc/default/printerfacts
+ExecStart=/usr/bin/printerfacts
+Restart=on-failure
+User=printerfacts
+WorkingDirectory=/var/lib/printerfacts
+Environment=RUST_LOG=info
+
+[Install]
+WantedBy=multi-user.target
