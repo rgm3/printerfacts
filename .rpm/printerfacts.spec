@@ -64,8 +64,6 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}
 cp -a * %{buildroot}
 mkdir -p %{buildroot}%{_unitdir}
-install -m 0644 %{SOURCE1} %{buildroot}%{_unitdir}
-install -m 0644 %{SOURCE2} %{buildroot}/etc/default/printerfacts
 
 %clean
 rm -rf %{buildroot}
@@ -73,3 +71,5 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %{_bindir}/*
+/etc/default/printerfacts
+/lib/systemd/system/printerfacts.service
