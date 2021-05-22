@@ -26,3 +26,12 @@ warp = "0.3"
 
 [build-dependencies]
 ructe = { version = "0", features = ["warp03"] }
+
+[package.metadata.rpm]
+package = "printerfacts"
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+
+[package.metadata.rpm.targets]
+printerfacts = { path = "/usr/bin/printerfacts" }
