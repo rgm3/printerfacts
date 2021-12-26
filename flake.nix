@@ -10,16 +10,13 @@
       let
         pkgs = nixpkgs.legacyPackages."${system}";
         naersk-lib = naersk.lib."${system}";
-        srcNoTarget = dir:
-          builtins.filterSource (path: type:
-            type != "directory" || builtins.baseNameOf path != "target") dir;
-        src = srcNoTarget ./.;
+        src = ./.;
       in rec {
         # `nix build`
         packages = rec {
           printerfacts-bin = naersk-lib.buildPackage {
             pname = "printerfacts";
-            root = srcNoTarget ./.;
+            root = ./.;
           };
           printerfacts = pkgs.stdenv.mkDerivation {
             inherit (printerfacts-bin) name;
@@ -66,7 +63,7 @@
             nodes.server = { ... }: {
               imports = [ self.nixosModules."${system}".printerfacts ];
               users.groups.within = { };
-              systemd.services.within-homedir-setup = {
+              systemd.services."within.homedir-setup" = {
                 description = "Creates homedirs for /srv/within services";
                 wantedBy = [ "multi-user.target" ];
 
@@ -118,25 +115,36 @@
             };
 
             config = mkIf cfg.enable {
+              users.users.printerfacts = {
+                createHome = true;
+                description = "tulpa.dev/cadey/printerfacts";
+                isSystemUser = true;
+                group = "within";
+                home = "/srv/within/printerfacts";
+                extraGroups = [ "keys" ];
+              };
+
               systemd.services."within.printerfacts" = {
                 wantedBy = [ "multi-user.target" ];
+                path = [ self.packages."${system}".printerfacts ];
+                after = [ "within.homedir-setup.service" ];
 
-                serviceConfig = {
-                  DynamicUser = "yes";
-                  Restart = "on-failure";
-                  WorkingDirectory = "/srv/within/printerfacts";
-                  RestartSec = "5s";
+                serviceConfig =
+                  let site = self.packages."${system}".printerfacts;
+                  in {
+                    User = "printerfacts";
+                    Group = "within";
+                    Restart = "on-failure";
+                    WorkingDirectory = site;
+                    ExecStart = "${site}/bin/printerfacts";
+                    RestartSec = "5s";
+                  };
+
+                environment = {
+                  RUST_LOG = "info";
+                  DOMAIN = cfg.domain;
+                  SOCKPATH = cfg.sockPath;
                 };
-
-                script = let site = self.packages."${system}".printerfacts;
-                in ''
-                  set -x
-                  export SOCKPATH=${cfg.sockPath}
-                  export DOMAIN=${toString cfg.domain}
-                  export RUST_LOG=info
-                  cd ${site}
-                  exec ${site}/bin/printerfacts
-                '';
               };
 
               services.cfdyndns =
