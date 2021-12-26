@@ -6,7 +6,7 @@
   };
 
   outputs = { self, nixpkgs, flake-utils, naersk, xess }:
-    flake-utils.lib.eachDefaultSystem (system:
+    flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" ] (system:
       let
         pkgs = nixpkgs.legacyPackages."${system}";
         naersk-lib = naersk.lib."${system}";
@@ -31,7 +31,9 @@
 
               cp -rf $src/templates $out/templates
               cp -rf ${printerfacts-bin}/bin $out/bin
-              cp -rf ${xess}/xess.css $out/static/gruvbox.css
+              cp -rf ${
+                xess.defaultPackage."${system}"
+              }/static/css/xess.css $out/static/gruvbox.css
             '';
           };
         };
@@ -83,12 +85,11 @@
               within.services.printerfacts.enable = true;
             };
 
-            testScript =
-              ''
-                start_all()
-                client.wait_for_unit("within.printerfacts.service")
-                client.succeed("curl -f http://printerfacts.akua --resolve printerfacts.akua:80:127.0.0.1")
-              '';
+            testScript = ''
+              start_all()
+              server.wait_for_unit("within.printerfacts.service")
+              server.succeed("sleep 2 && curl -m 2 -v -f http://printerfacts.akua/metrics --unix-socket /srv/within/run/printerfacts.sock")
+            '';
           };
 
         nixosModules.printerfacts = { config, lib, pkgs, ... }:
@@ -124,11 +125,12 @@
                   DynamicUser = "yes";
                   Restart = "on-failure";
                   WorkingDirectory = "/srv/within/printerfacts";
-                  RestartSec = "30s";
+                  RestartSec = "5s";
                 };
 
                 script = let site = self.packages."${system}".printerfacts;
                 in ''
+                  set -x
                   export SOCKPATH=${cfg.sockPath}
                   export DOMAIN=${toString cfg.domain}
                   export RUST_LOG=info
@@ -146,7 +148,7 @@
                   proxyWebsockets = true;
                 };
                 forceSSL = cfg.useACME;
-                useACMEHost = "cetacean.club";
+                useACMEHost = mkIf cfg.useACME "cetacean.club";
                 extraConfig = ''
                   access_log /var/log/nginx/printerfacts.access.log;
                 '';
