@@ -84,8 +84,6 @@
             };
 
             config = mkIf cfg.enable {
-              nixpkgs.overlays = [ self.overlay ];
-
               users.users.printerfacts = {
                 createHome = true;
                 description = "tulpa.dev/cadey/printerfacts";
