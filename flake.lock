@@ -65,7 +65,24 @@
       "inputs": {
         "flake-utils": "flake-utils",
         "naersk": "naersk",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_2",
+        "xess": "xess"
+      }
+    },
+    "xess": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1637634344,
+        "narHash": "sha256-63zWhmRpppLzh+H70gHSViHfZ4JvtnOFDRrrjkXtzJE=",
+        "owner": "Xe",
+        "repo": "Xess",
+        "rev": "f9ffc529fca9751afdce2408089c51e73d56fce8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Xe",
+        "repo": "Xess",
+        "type": "github"
       }
     }
   },

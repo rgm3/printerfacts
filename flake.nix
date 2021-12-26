@@ -2,18 +2,41 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     naersk.url = "github:nix-community/naersk";
+    xess = {
+      url = "github:Xe/Xess";
+      flake = false;
+    };
   };
 
-  outputs = { self, nixpkgs, flake-utils, naersk }:
+  outputs = { self, nixpkgs, flake-utils, naersk, xess }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages."${system}";
         naersk-lib = naersk.lib."${system}";
+        srcNoTarget = dir:
+          builtins.filterSource (path: type:
+            type != "directory" || builtins.baseNameOf path != "target") dir;
+        src = srcNoTarget ./.;
       in rec {
         # `nix build`
-        packages.printerfacts = naersk-lib.buildPackage {
-          pname = "printerfacts";
-          root = ./.;
+        packages = rec {
+          printerfacts-bin = naersk-lib.buildPackage {
+            pname = "printerfacts";
+            root = srcNoTarget ./.;
+          };
+          printerfacts = pkgs.stdenv.mkDerivation {
+            inherit (printerfacts-bin) name;
+            inherit src;
+            phases = "installPhase";
+
+            installPhase = ''
+              mkdir -p $out/static
+
+              cp -rf $src/templates $out/templates
+              cp -rf ${printerfacts-bin}/bin $out/bin
+              cp -rf ${xess}/static/css/xess.css $out/static/gruvbox.css
+            '';
+          };
         };
         defaultPackage = packages.printerfacts;
 
@@ -23,8 +46,17 @@
         defaultApp = apps.printerfacts;
 
         # `nix develop`
-        devShell =
-          pkgs.mkShell { nativeBuildInputs = with pkgs; [ rustc cargo ]; };
+        devShell = pkgs.mkShell {
+          nativeBuildInputs = with pkgs; [
+            rustc
+            cargo
+            cargo-watch
+            rls
+            rustfmt
+          ];
+
+          RUST_LOG = "info";
+        };
 
         nixosModules.printerfacts = { config, lib, pkgs, ... }:
           with lib;
