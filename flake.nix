@@ -88,7 +88,7 @@
             };
 
             config = mkIf cfg.enable {
-              nixpkgs.overlays = [ self.overlay ];
+              nixpkgs.overlays = [ self."${system}".overlay ];
 
               users.users.printerfacts = {
                 createHome = true;
