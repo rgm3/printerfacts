@@ -24,6 +24,7 @@
             pname = "printerfacts";
             root = srcNoTarget ./.;
           };
+          css = pkgs.callPackage xess { };
           printerfacts = pkgs.stdenv.mkDerivation {
             inherit (printerfacts-bin) name;
             inherit src;
@@ -34,7 +35,7 @@
 
               cp -rf $src/templates $out/templates
               cp -rf ${printerfacts-bin}/bin $out/bin
-              cp -rf ${xess}/static/css/xess.css $out/static/gruvbox.css
+              cp -rf ${css}/static/css/xess.css $out/static/gruvbox.css
             '';
           };
         };
