@@ -138,6 +138,7 @@
                     WorkingDirectory = site;
                     ExecStart = "${site}/bin/printerfacts";
                     RestartSec = "5s";
+                    UMask = "007";
                   };
 
                 environment = {
