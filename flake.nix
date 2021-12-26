@@ -45,6 +45,10 @@
           flake-utils.lib.mkApp { drv = packages.printerfacts; };
         defaultApp = apps.printerfacts;
 
+        overlay = final: prev: {
+          inherit (packages) printerfacts;
+        };
+
         # `nix develop`
         devShell = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
@@ -84,6 +88,8 @@
             };
 
             config = mkIf cfg.enable {
+              nix.overlay = self.overlay;
+
               users.users.printerfacts = {
                 createHome = true;
                 description = "tulpa.dev/cadey/printerfacts";
