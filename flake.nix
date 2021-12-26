@@ -2,10 +2,7 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     naersk.url = "github:nix-community/naersk";
-    xess = {
-      url = "github:Xe/Xess";
-      flake = false;
-    };
+    xess.url = "github:Xe/Xess";
   };
 
   outputs = { self, nixpkgs, flake-utils, naersk, xess }:
