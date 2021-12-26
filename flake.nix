@@ -58,6 +58,42 @@
           RUST_LOG = "info";
         };
 
+        checks.end2end =
+          with import (nixpkgs + "/nixos/lib/testing-python.nix") {
+            inherit system;
+          };
+
+          makeTest {
+            nodes.server = { ... }: {
+              imports = [ self.nixosModules."${system}".printerfacts ];
+              users.groups.within = { };
+              systemd.services.within-homedir-setup = {
+                description = "Creates homedirs for /srv/within services";
+                wantedBy = [ "multi-user.target" ];
+
+                serviceConfig.Type = "oneshot";
+
+                script = with pkgs; ''
+                  ${coreutils}/bin/mkdir -p /srv/within
+                  ${coreutils}/bin/chown root:within /srv/within
+                  ${coreutils}/bin/chmod 775 /srv/within
+                  ${coreutils}/bin/mkdir -p /srv/within/run
+                  ${coreutils}/bin/chown root:within /srv/within/run
+                  ${coreutils}/bin/chmod 770 /srv/within/run
+                '';
+              };
+
+              within.services.printerfacts.enable = true;
+            };
+
+            testScript =
+              ''
+                start_all()
+                client.wait_for_unit("within.printerfacts.service")
+                client.succeed("curl -f http://printerfacts.akua --resolve printerfacts.akua:80:127.0.0.1")
+              '';
+          };
+
         nixosModules.printerfacts = { config, lib, pkgs, ... }:
           with lib;
           let cfg = config.within.services.printerfacts;
@@ -84,69 +120,17 @@
             };
 
             config = mkIf cfg.enable {
-              users.users.printerfacts = {
-                createHome = true;
-                description = "tulpa.dev/cadey/printerfacts";
-                isSystemUser = true;
-                group = "within";
-                home = "/srv/within/printerfacts";
-                extraGroups = [ "keys" ];
-              };
-
-              systemd.services.printerfacts = {
+              systemd.services."within.printerfacts" = {
                 wantedBy = [ "multi-user.target" ];
 
                 serviceConfig = {
-                  User = "printerfacts";
-                  Group = "within";
+                  DynamicUser = "yes";
                   Restart = "on-failure";
                   WorkingDirectory = "/srv/within/printerfacts";
                   RestartSec = "30s";
-
-                  # Security
-                  CapabilityBoundingSet = "";
-                  DeviceAllow = [ ];
-                  NoNewPrivileges = "true";
-                  ProtectControlGroups = "true";
-                  ProtectClock = "true";
-                  PrivateDevices = "true";
-                  PrivateUsers = "true";
-                  ProtectHome = "true";
-                  ProtectHostname = "true";
-                  ProtectKernelLogs = "true";
-                  ProtectKernelModules = "true";
-                  ProtectKernelTunables = "true";
-                  ProtectSystem = "true";
-                  ProtectProc = "invisible";
-                  RemoveIPC = "true";
-                  RestrictAddressFamilies = [ "~AF_NETLINK" ];
-                  RestrictNamespaces = [
-                    "CLONE_NEWCGROUP"
-                    "CLONE_NEWIPC"
-                    "CLONE_NEWNET"
-                    "CLONE_NEWNS"
-                    "CLONE_NEWPID"
-                    "CLONE_NEWUTS"
-                    "CLONE_NEWUSER"
-                  ];
-                  RestrictSUIDSGID = "true";
-                  RestrictRealtime = "true";
-                  SystemCallArchitectures = "native";
-                  SystemCallFilter = [
-                    "~@reboot"
-                    "~@module"
-                    "~@mount"
-                    "~@swap"
-                    "~@resources"
-                    "~@cpu-emulation"
-                    "~@obsolete"
-                    "~@debug"
-                    "~@privileged"
-                  ];
-                  UMask = "007";
                 };
 
-                script = let site = self.defaultPackage;
+                script = let site = self.packages."${system}".printerfacts;
                 in ''
                   export SOCKPATH=${cfg.sockPath}
                   export DOMAIN=${toString cfg.domain}
