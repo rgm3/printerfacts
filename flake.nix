@@ -45,10 +45,6 @@
           flake-utils.lib.mkApp { drv = packages.printerfacts; };
         defaultApp = apps.printerfacts;
 
-        overlay = final: prev: {
-          inherit (packages) printerfacts;
-        };
-
         # `nix develop`
         devShell = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [
@@ -88,7 +84,7 @@
             };
 
             config = mkIf cfg.enable {
-              nixpkgs.overlays = [ self."${system}".overlay ];
+              nixpkgs.overlays = [ self.overlay ];
 
               users.users.printerfacts = {
                 createHome = true;
@@ -152,7 +148,7 @@
                   UMask = "007";
                 };
 
-                script = let site = pkgs.tulpa.dev.cadey.printerfacts;
+                script = let site = self.defaultPackage;
                 in ''
                   export SOCKPATH=${cfg.sockPath}
                   export DOMAIN=${toString cfg.domain}
