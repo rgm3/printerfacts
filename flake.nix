@@ -3,12 +3,13 @@
     flake-utils.url = "github:numtide/flake-utils";
     naersk.url = "github:nix-community/naersk";
     xess.url = "github:Xe/Xess";
+    portable-svc.url = "git+https://tulpa.dev/cadey/portable-svc.git?ref=main";
   };
 
-  outputs = { self, nixpkgs, flake-utils, naersk, xess }:
+  outputs = { self, nixpkgs, flake-utils, naersk, xess, portable-svc }:
     flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" ] (system:
       let
-        pkgs = nixpkgs.legacyPackages."${system}";
+        pkgs = import nixpkgs { overlays = [ portable-svc.overlay ]; inherit system; };
         naersk-lib = naersk.lib."${system}";
         src = ./.;
       in rec {
@@ -19,7 +20,7 @@
             root = ./.;
           };
           printerfacts = pkgs.stdenv.mkDerivation {
-            inherit (printerfacts-bin) name;
+            inherit (printerfacts-bin) pname version;
             inherit src;
             phases = "installPhase";
 
@@ -32,6 +33,17 @@
                 xess.defaultPackage."${system}"
               }/static/css/xess.css $out/static/gruvbox.css
             '';
+          };
+          printerfacts-service = pkgs.substituteAll {
+            name = "printerfacts.service";
+            src = ./systemd/printerfacts.service.in;
+            printerfacts = self.packages.${system}.printerfacts;
+          };
+          portable-service = pkgs.portableService {
+            inherit (self.packages.${system}.printerfacts) version;
+            name = "printerfacts";
+            description = "Printer facts";
+            units = [ self.packages.${system}.printerfacts-service ];
           };
         };
         defaultPackage = packages.printerfacts;

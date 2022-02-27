@@ -1,0 +1,10 @@
+[Unit]
+Description=The Printerfacts service
+
+[Service]
+DynamicUser=yes
+Environment=PORT=32042
+ExecStart=@printerfacts@/bin/printerfacts
+
+[Install]
+WantedBy=multi-user.target
