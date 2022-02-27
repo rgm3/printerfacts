@@ -9,7 +9,10 @@
   outputs = { self, nixpkgs, flake-utils, naersk, xess, portable-svc }:
     flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" ] (system:
       let
-        pkgs = import nixpkgs { overlays = [ portable-svc.overlay ]; inherit system; };
+        pkgs = import nixpkgs {
+          overlays = [ portable-svc.overlay ];
+          inherit system;
+        };
         naersk-lib = naersk.lib."${system}";
         src = ./.;
       in rec {
@@ -33,6 +36,20 @@
                 xess.defaultPackage."${system}"
               }/static/css/xess.css $out/static/gruvbox.css
             '';
+          };
+          docker = let
+            printerfacts = self.packages.${system}.printerfacts;
+            name = "xena/printerfacts";
+            tag = printerfacts.version;
+          in pkgs.dockerTools.buildLayeredImage {
+            inherit name tag;
+            contents = [ printerfacts ];
+
+            config = {
+              Cmd = [ "${printerfacts}/bin/printerfacts" ];
+              Env = [ "RUST_LOG=info" "PORT=32042" ];
+              WorkingDir = "/";
+            };
           };
           printerfacts-service = pkgs.substituteAll {
             name = "printerfacts.service";
