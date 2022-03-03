@@ -4,6 +4,7 @@ Description=The Printerfacts service
 [Service]
 DynamicUser=yes
 Environment=PORT=32042
+WorkingDir=@printerfacts@
 ExecStart=@printerfacts@/bin/printerfacts
 
 [Install]
