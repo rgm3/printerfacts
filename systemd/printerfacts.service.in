@@ -5,7 +5,7 @@ Description=The Printerfacts service
 DynamicUser=yes
 Environment=PORT=32042
 Environment=RUST_LOG=info
-WorkingDir=@printerfacts@
+WorkingDirectory=@printerfacts@
 ExecStart=@printerfacts@/bin/printerfacts
 
 [Install]
